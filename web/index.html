@@ -1,0 +1,113 @@
+<video style="margin: 0; padding: 0; z-index: -1;" width="640" height="480" id="webcam"></video>
+<canvas style="position: absolute; left: 0;" width="640" height="480" id="view"></canvas>
+<pre style="width: 640; height: 240; overflow: auto;" id="debug">loading models etc..</pre>
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/human/dist/human.js"></script>
+<script>
+    // This is a draft/prototype of a program you can run locally to track your emotions
+    // via webcam. These emotions can be stored, analyzed, etc. and used to trigger
+    // events in other services.
+
+    // The current version sends a picture of a cat to a user who has been experiencing
+    // negative emotions for three seconds. There's a five minute break between messages.
+    const inputVideo = document.querySelector('#webcam')
+    const outputCanvas = document.querySelector('#view')
+    const debugPre = document.querySelector('#debug')
+    const context = outputCanvas.getContext('2d')
+
+    const allEmotions = ['sad', 'angry', 'disgust', 'fear', 'happy', 'surprise', 'neutral']
+    const positiveEmotions = ['happy', 'surprise', 'neutral']
+
+    let catTimeout = 0 // Don't send a cat right away
+    const timeBetweenCats = 5 * 60 * 1000 // ms
+    const trackEmotionFor = 3 * 1000 // ms
+    const emotionHistory = {} // Track trailing average emotion
+
+    const maxDebugLength = 500
+    let debugLogs = []
+    function log(msg) {
+        if (debugLogs.length > maxDebugLength) {
+            // Stop infinite-length logs
+            debugLogs.unshift()
+        }
+        debugLogs.push(msg)
+        debugPre.innerHTML = debugLogs.join('\n')
+        debugPre.scrollTop = debugPre.scrollHeight
+    }
+
+    function handleResult(result) {
+        if (result.face.length === 0) {
+            log('no faces found!')
+            catTimeout = Math.max(catTimeout, Date.now() + 1000)
+            return
+        } else if (result.face.length > 1) {
+            log('more than one found found!')
+            catTimeout = Math.max(catTimeout, Date.now() + 1000)
+            return
+        }
+
+        if (result.face.length > 0) {
+            let good = 0
+            let bad = 0
+            let debugText = []
+            result.face[0].emotion.forEach(kind => {
+                debugText.push(`${kind.emotion}: ${kind.score}`)
+                if (positiveEmotions.includes(kind.emotion)) {
+                    good += kind.score
+                } else {
+                    bad += kind.score
+                }
+            })
+            const overall = good - bad
+
+            // Remove stale emotion data
+            Object.keys(emotionHistory).forEach(time => {
+                if (time < Date.now() - trackEmotionFor) {
+                    delete emotionHistory[time]
+                }
+            })
+            emotionHistory[Date.now()] = overall
+
+            // Calculate trailing average
+            const trailingAvg = Object.values(emotionHistory).reduce(function (avg, value, _, { length }) {
+                return avg + value / length
+            }, 0);
+
+            // Given a trailing average negative emotion, and if it's been a while since we send a cat
+            if (trailingAvg < 0 && catTimeout < Date.now()) {
+                log('sending cat!')
+                fetch('/send_cat').then(r => console.log(`send_cat: ${r.status}`)).catch(e => log(`send_cat: ${e}`))
+                catTimeout = Date.now() + timeBetweenCats
+            }
+
+            log(`trailing avg: ${trailingAvg.toFixed(2)} | current: ${debugText.sort().join(' | ')}`)
+        }
+    }
+
+    function main() {
+        const config = { backend: 'webgl' }
+        const human = new Human.Human(config)
+        window.human = human
+
+        async function detectVideo() {
+            // `inputVideo` is a video of a webcam stream
+            const result = await human.detect(inputVideo)
+            // `result` contains an array of faces along with emotion weights
+            handleResult(result)
+            context.clearRect(0, 0, outputCanvas.width, outputCanvas.height)
+            requestAnimationFrame(detectVideo)
+        }
+        detectVideo()
+    }
+
+    window.navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            inputVideo.srcObject = stream
+            inputVideo.onloadedmetadata = (e) => {
+                inputVideo.play()
+            }
+            main()
+        })
+        .catch(() => {
+            log('missing webcam permissions')
+        })
+</script>
