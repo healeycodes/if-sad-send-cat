@@ -1,5 +1,5 @@
 # If Sad Send Cat
-> My blog post: [When I'm Sad My Computer Sends Me Cats](https://healeycodes.com//when-im-sad-my-computer-sends-me-a-cat)
+> My blog post: [When I'm Sad My Computer Sends Me Cats](https://healeycodes.com/when-im-sad-my-computer-sends-me-a-cat)
 
 If you're sad in front of your computer, this project will send a random cat to your phone. It was an evening project to glue together a few APIs.
 
