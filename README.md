@@ -3,12 +3,12 @@
 
 If you're sad in front of your computer, this project will send a random cat to your phone. It was an evening project to glue together a few APIs.
 
+Hopefully this prototype can be used as inspiration for your fun ideas.
+
 ## How?
 - It runs locally and captures your webcam through a browser
 - Emotions are tracked via [vladmandic/human](https://github.com/vladmandic/human)
 - Cats are provided by The Cat API. Notifications via [Pushover](https://pushover.net/)
-
-Hopefully this draft code can be used as inspiration for your fun ideas.
 
 ## Setup/Run
 
