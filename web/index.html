@@ -1,7 +1,7 @@
 <video style="margin: 0; padding: 0; z-index: -1;" width="640" height="480" id="webcam"></video>
 <canvas style="position: absolute; left: 0;" width="640" height="480" id="view"></canvas>
 <pre style="width: 640; height: 240; overflow: auto;" id="debug">loading models etc..</pre>
-<script src="https://cdn.jsdelivr.net/npm/@vladmandic/human/dist/human.js"></script>
+<script src="web/human.js"></script>
 <script>
     // This is a draft/prototype of a program you can run locally to track your emotions
     // via webcam. These emotions can be stored, analyzed, etc. and used to trigger
@@ -17,7 +17,7 @@
     const allEmotions = ['sad', 'angry', 'disgust', 'fear', 'happy', 'surprise', 'neutral']
     const positiveEmotions = ['happy', 'surprise', 'neutral']
 
-    let catTimeout = 0 // Don't send a cat right away
+    let catTimeout = 0
     const timeBetweenCats = 5 * 60 * 1000 // ms
     const trackEmotionFor = 3 * 1000 // ms
     const emotionHistory = {} // Track trailing average emotion
@@ -75,7 +75,7 @@
             // Given a trailing average negative emotion, and if it's been a while since we send a cat
             if (trailingAvg < 0 && catTimeout < Date.now()) {
                 log('sending cat!')
-                fetch('/send_cat').then(r => console.log(`send_cat: ${r.status}`)).catch(e => log(`send_cat: ${e}`))
+                fetch('web/cat.json').then(r => console.log(`send_cat: ${r.status}`)).catch(e => log(`send_cat: ${e}`))
                 catTimeout = Date.now() + timeBetweenCats
             }
 

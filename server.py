@@ -102,11 +102,12 @@ class HttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     # future employers, please look away
     def translate_path(self, path: str) -> str:
         if path == "/":
+            # models are requested from `../models/`
+            # but we want to serve the index from `/`
             path = "/web/"
 
-        if path.endswith("send_cat/"):
+        if path == "/web/cat.json":
             send_cat()
-            path = "/"
 
         return super().translate_path(path)
 
