@@ -3,7 +3,7 @@
 
 If you're sad in front of your computer, this project will send a random cat to your phone. It was an evening project to glue together a few APIs.
 
-Hopefully this prototype can be used as inspiration for your fun ideas.
+Hopefully this prototype can be used as inspiration for your fun ideas!
 
 ## How?
 - It runs locally and captures your webcam through a browser
