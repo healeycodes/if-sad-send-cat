@@ -23,7 +23,7 @@ Hopefully this prototype can be used as inspiration for your fun ideas!
 
 ![Side by side comparison of the debug log when I'm happy vs. when I'm sad.](https://github.com/healeycodes/if-sad-send-cat/blob/main/web/happysad.png)
 
-## Notification
+## Pushover Notification
 
 ![A notification on my phone of "Marcus", a cat, who "needs my attention".](https://github.com/healeycodes/if-sad-send-cat/blob/main/web/catalert2.png)
 
